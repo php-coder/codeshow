@@ -11,10 +11,7 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
-import com.github.javaparser.ast.expr.AnnotationExpr;
-import com.github.javaparser.ast.expr.Expression;
-import com.github.javaparser.ast.expr.LiteralStringValueExpr;
-import com.github.javaparser.ast.expr.SingleMemberAnnotationExpr;
+import com.github.javaparser.ast.expr.*;
 
 public class App {
 
@@ -152,12 +149,12 @@ public class App {
 	// TODO: support annotation attributes (like "path" or "value")
 	private static String extractAnnotationValue(Optional<AnnotationExpr> annotationExpr) {
 		AnnotationExpr annotation = annotationExpr.get();
-		if (annotation instanceof SingleMemberAnnotationExpr) {
+		if (annotation.isSingleMemberAnnotationExpr()) {
 			Expression value = annotation.asSingleMemberAnnotationExpr().getMemberValue();
-			if (!(value instanceof LiteralStringValueExpr)) {
-				return value.toString();
+			if (value.isLiteralStringValueExpr()) {
+				return value.asLiteralStringValueExpr().getValue();
 			}
-			return value.asLiteralStringValueExpr().getValue();
+			return value.toString();
 		}
 		return null;
 	}
