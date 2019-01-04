@@ -15,6 +15,8 @@ class AppTests {
 	// TODO: recognize all annotations on a class level and method level
 	// TODO: recognize fully-qualified form @org.springframework.stereotype.Controller
 	// TODO: recognize annotations from an interface
+	// TODO: @RequestMapping(method) may have multiple values
+	// TODO: @RequestMapping(value|path) may have multiple values
 
 	@Test
 	void shouldDetectFullyImportedMappingsInsideController() {
@@ -190,6 +192,88 @@ class AppTests {
 			"PATCH /patch",
 			"DELETE /delete",
 			"ANY? /request"
+		);
+	}
+
+	@Test
+	void shouldDetectMappingsWithStringAsPathAttribute() {
+		// given
+		CompilationUnit cu = JavaParser.parse("" +
+			"import org.springframework.web.bind.annotation.*;\n" +
+			"\n" +
+			"@RestController\n" +
+			"public class Test {\n" +
+			"\n" +
+			"    @GetMapping(path = \"/get\")\n" +
+			"    public void get() {}\n" +
+			"\n" +
+			"    @PutMapping(path = \"/put\")\n" +
+			"    public void put() {}\n" +
+			"\n" +
+			"    @PostMapping(path = \"/post\")\n" +
+			"    public void post() {}\n" +
+			"\n" +
+			"    @PatchMapping(path = \"/patch\")\n" +
+			"    public void patch() {}\n" +
+			"\n" +
+			"    @DeleteMapping(path = \"/delete\")\n" +
+			"    public void delete() {}\n" +
+			"\n" +
+			"    @RequestMapping(path = \"/request\")\n" +
+			"    public void request() {}\n" +
+			"}"
+		);
+		// when
+		List<String> endpoints = App.collectEndpoints(cu);
+		// then
+		assertThat(endpoints).containsExactlyInAnyOrder(
+			"GET /get",
+			"PUT /put",
+			"POST /post",
+			"PATCH /patch",
+			"DELETE /delete",
+			"ANY? /request"
+		);
+	}
+
+	@Test
+	void shouldDetectMappingsWithConstantAsPathAttribute() {
+		// given
+		CompilationUnit cu = JavaParser.parse("" +
+			"import org.springframework.web.bind.annotation.*;\n" +
+			"\n" +
+			"@RestController\n" +
+			"public class Test {\n" +
+			"\n" +
+			"    @GetMapping(path = GET_URL)\n" +
+			"    public void get() {}\n" +
+			"\n" +
+			"    @PutMapping(path = PUT_URL)\n" +
+			"    public void put() {}\n" +
+			"\n" +
+			"    @PostMapping(path = POST_URL)\n" +
+			"    public void post() {}\n" +
+			"\n" +
+			"    @PatchMapping(path = PATCH_URL)\n" +
+			"    public void patch() {}\n" +
+			"\n" +
+			"    @DeleteMapping(path = DELETE_URL)\n" +
+			"    public void delete() {}\n" +
+			"\n" +
+			"    @RequestMapping(path = REQUEST_URL)\n" +
+			"    public void request() {}\n" +
+			"}"
+		);
+		// when
+		List<String> endpoints = App.collectEndpoints(cu);
+		// then
+		assertThat(endpoints).containsExactlyInAnyOrder(
+			"GET GET_URL",
+			"PUT PUT_URL",
+			"POST POST_URL",
+			"PATCH PATCH_URL",
+			"DELETE DELETE_URL",
+			"ANY? REQUEST_URL"
 		);
 	}
 

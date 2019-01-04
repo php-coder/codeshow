@@ -146,12 +146,22 @@ public class App {
 		return null;
 	}
 
-	// TODO: support annotation attributes (like "path" or "value")
+	// TODO: support annotation attributes (like "value")
 	private static String extractAnnotationValue(Optional<AnnotationExpr> annotationExpr) {
 		AnnotationExpr annotation = annotationExpr.get();
 		if (annotation.isSingleMemberAnnotationExpr()) {
 			Expression value = annotation.asSingleMemberAnnotationExpr().getMemberValue();
 			return extractExpressionValue(value);
+		}
+		if (annotation.isNormalAnnotationExpr()) {
+			return annotation.asNormalAnnotationExpr()
+				.getPairs()
+				.stream()
+				.filter(pair -> "path".equals(pair.getName().getIdentifier()))
+				.findFirst()
+				.map(MemberValuePair::getValue)
+				.map(App::extractExpressionValue)
+				.orElse(null);
 		}
 		return null;
 	}
