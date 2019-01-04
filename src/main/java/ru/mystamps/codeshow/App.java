@@ -151,12 +151,16 @@ public class App {
 		AnnotationExpr annotation = annotationExpr.get();
 		if (annotation.isSingleMemberAnnotationExpr()) {
 			Expression value = annotation.asSingleMemberAnnotationExpr().getMemberValue();
-			if (value.isLiteralStringValueExpr()) {
-				return value.asLiteralStringValueExpr().getValue();
-			}
-			return value.toString();
+			return extractExpressionValue(value);
 		}
 		return null;
 	}
 
+	private static String extractExpressionValue(Expression expression) {
+		if (expression.isLiteralStringValueExpr()) {
+			return expression.asLiteralStringValueExpr().getValue();
+		}
+		return expression.toString();
+	}
+	
 }
