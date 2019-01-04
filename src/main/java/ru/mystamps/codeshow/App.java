@@ -146,7 +146,6 @@ public class App {
 		return null;
 	}
 
-	// TODO: support annotation attributes (like "value")
 	private static String extractAnnotationValue(Optional<AnnotationExpr> annotationExpr) {
 		AnnotationExpr annotation = annotationExpr.get();
 		if (annotation.isSingleMemberAnnotationExpr()) {
@@ -175,7 +174,7 @@ public class App {
 	
 	private static boolean isPathAttribute(MemberValuePair pair) {
 		String attrName = pair.getName().asString();
-		return "path".equals(attrName);
+		return "path".equals(attrName) || "value".equals(attrName);
 	}
 	
 }

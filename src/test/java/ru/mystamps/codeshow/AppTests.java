@@ -277,6 +277,47 @@ class AppTests {
 		);
 	}
 
+	@Test
+	void shouldDetectMappingsWithValueAttribute() {
+		// given
+		CompilationUnit cu = JavaParser.parse("" +
+			"import org.springframework.web.bind.annotation.*;\n" +
+			"\n" +
+			"@RestController\n" +
+			"public class Test {\n" +
+			"\n" +
+			"    @GetMapping(value = \"/get\")\n" +
+			"    public void get() {}\n" +
+			"\n" +
+			"    @PutMapping(value = \"/put\")\n" +
+			"    public void put() {}\n" +
+			"\n" +
+			"    @PostMapping(value = \"/post\")\n" +
+			"    public void post() {}\n" +
+			"\n" +
+			"    @PatchMapping(value = \"/patch\")\n" +
+			"    public void patch() {}\n" +
+			"\n" +
+			"    @DeleteMapping(value = \"/delete\")\n" +
+			"    public void delete() {}\n" +
+			"\n" +
+			"    @RequestMapping(value = \"/request\")\n" +
+			"    public void request() {}\n" +
+			"}"
+		);
+		// when
+		List<String> endpoints = App.collectEndpoints(cu);
+		// then
+		assertThat(endpoints).containsExactlyInAnyOrder(
+			"GET /get",
+			"PUT /put",
+			"POST /post",
+			"PATCH /patch",
+			"DELETE /delete",
+			"ANY? /request"
+		);
+	}
+
 	// TODO: try to resolve a constant from the same class
 	// TODO: try to resolve a constant from other class (Url.TEST_URL)
 	@Test
