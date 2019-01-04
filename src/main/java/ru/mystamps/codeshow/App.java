@@ -157,7 +157,7 @@ public class App {
 			return annotation.asNormalAnnotationExpr()
 				.getPairs()
 				.stream()
-				.filter(pair -> "path".equals(pair.getName().getIdentifier()))
+				.filter(App::isPathAttribute)
 				.findFirst()
 				.map(MemberValuePair::getValue)
 				.map(App::extractExpressionValue)
@@ -171,6 +171,11 @@ public class App {
 			return expression.asLiteralStringValueExpr().getValue();
 		}
 		return expression.toString();
+	}
+	
+	private static boolean isPathAttribute(MemberValuePair pair) {
+		String attrName = pair.getName().asString();
+		return "path".equals(attrName);
 	}
 	
 }
