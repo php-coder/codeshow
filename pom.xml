@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>ru.mystamps</groupId>
+	<artifactId>codeshow</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>com.github.javaparser</groupId>
+			<artifactId>javaparser-symbol-solver-core</artifactId>
+			<version>3.9.0</version>
+		</dependency>
+
+		<!-- Tests -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>5.3.2</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-params</artifactId>
+			<version>5.3.2</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>5.3.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+			<version>3.11.1</version>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.22.1</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.2.1</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<shadedArtifactAttached>true</shadedArtifactAttached>
+							<transformers>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>ru.mystamps.codeshow.App</mainClass>
+								</transformer>
+							</transformers>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<name>Code Show</name>
+	<description>XXX</description>
+	<inceptionYear>2019</inceptionYear>
+
+	<licenses>
+		<license>
+			<name>GNU GPL v2</name>
+			<url>http://www.gnu.org/licenses/gpl-2.0.html</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>Slava Semushin</name>
+			<email>slava.semushin@gmail.com</email>
+			<url>https://my-stamps.ru</url>
+			<roles>
+				<role>founder</role>
+				<role>developer</role>
+			</roles>
+			<timezone>0</timezone>
+		</developer>
+	</developers>
+
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/php-coder/codeshow/issues</url>
+	</issueManagement>
+
+	<ciManagement>
+		<system>Travis CI</system>
+		<url>https://travis-ci.org/php-coder/codeshow</url>
+	</ciManagement>
+
+	<scm>
+		<connection>scm:git:git://github.com/php-coder/codeshow.git</connection>
+		<url>https://github.com/php-coder/codeshow</url>
+	</scm>
+
+</project>
