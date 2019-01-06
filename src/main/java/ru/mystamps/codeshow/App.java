@@ -8,9 +8,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.NodeList;
-import com.github.javaparser.ast.body.BodyDeclaration;
-import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.body.TypeDeclaration;
+import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.expr.*;
 
 public class App {
@@ -112,14 +110,14 @@ public class App {
 
 				MethodDeclaration method = member.asMethodDeclaration();
 
-				addIfNotNull(result, inspectMethodForAnnotation("GET", GET_MAPPING_NAME, GET_MAPPING_FULL_NAME, method, classImports, wildcardImports));
-				addIfNotNull(result, inspectMethodForAnnotation("PUT", PUT_MAPPING_NAME, PUT_MAPPING_FULL_NAME, method, classImports, wildcardImports));
-				addIfNotNull(result, inspectMethodForAnnotation("POST", POST_MAPPING_NAME, POST_MAPPING_FULL_NAME, method, classImports, wildcardImports));
-				addIfNotNull(result, inspectMethodForAnnotation("PATCH", PATCH_MAPPING_NAME, PATCH_MAPPING_FULL_NAME, method, classImports, wildcardImports));
-				addIfNotNull(result, inspectMethodForAnnotation("DELETE", DELETE_MAPPING_NAME, DELETE_MAPPING_FULL_NAME, method, classImports, wildcardImports));
+				addIfNotNull(result, inspectMethodForAnnotation("GET", GET_MAPPING_NAME, GET_MAPPING_FULL_NAME, type, method, classImports, wildcardImports));
+				addIfNotNull(result, inspectMethodForAnnotation("PUT", PUT_MAPPING_NAME, PUT_MAPPING_FULL_NAME, type, method, classImports, wildcardImports));
+				addIfNotNull(result, inspectMethodForAnnotation("POST", POST_MAPPING_NAME, POST_MAPPING_FULL_NAME, type, method, classImports, wildcardImports));
+				addIfNotNull(result, inspectMethodForAnnotation("PATCH", PATCH_MAPPING_NAME, PATCH_MAPPING_FULL_NAME, type, method, classImports, wildcardImports));
+				addIfNotNull(result, inspectMethodForAnnotation("DELETE", DELETE_MAPPING_NAME, DELETE_MAPPING_FULL_NAME, type, method, classImports, wildcardImports));
 
 				// TODO: what method it should have? GET, POST, HEAD, OPTIONS, PUT, PATCH, DELETE, TRACE?
-				addIfNotNull(result, inspectMethodForAnnotation("ANY?", REQUEST_MAPPING_NAME, REQUEST_MAPPING_FULL_NAME, method, classImports, wildcardImports));
+				addIfNotNull(result, inspectMethodForAnnotation("ANY?", REQUEST_MAPPING_NAME, REQUEST_MAPPING_FULL_NAME, type, method, classImports, wildcardImports));
 			}
 		}
 
@@ -132,13 +130,13 @@ public class App {
 		}
 	}
 
-	private static String inspectMethodForAnnotation(String httpMethod, String annotationName, String annotationFullName, MethodDeclaration method, Map<String, Boolean> classImports, Map<String, Boolean> wildcardImports) {
+	private static String inspectMethodForAnnotation(String httpMethod, String annotationName, String annotationFullName, TypeDeclaration<?> type, MethodDeclaration method, Map<String, Boolean> classImports, Map<String, Boolean> wildcardImports) {
 		Optional<AnnotationExpr> mappingAnnotation = method.getAnnotationByName(annotationName);
 		boolean hasMapping = mappingAnnotation.isPresent();
 		boolean importsMapping = classImports.getOrDefault(annotationFullName, Boolean.FALSE);
 		boolean importsMappingsPackage = wildcardImports.getOrDefault(PKG_BIND_ANNOTATION, Boolean.FALSE);
 		if (hasMapping && (importsMapping || importsMappingsPackage)) {
-			String url = extractAnnotationValue(mappingAnnotation);
+			String url = extractAnnotationValue(type, mappingAnnotation);
 			if (url != null) {
 				return httpMethod + " " + url;
 			}
@@ -146,11 +144,11 @@ public class App {
 		return null;
 	}
 
-	private static String extractAnnotationValue(Optional<AnnotationExpr> annotationExpr) {
+	private static String extractAnnotationValue(TypeDeclaration<?> type, Optional<AnnotationExpr> annotationExpr) {
 		AnnotationExpr annotation = annotationExpr.get();
 		if (annotation.isSingleMemberAnnotationExpr()) {
 			Expression value = annotation.asSingleMemberAnnotationExpr().getMemberValue();
-			return extractExpressionValue(value);
+			return extractExpressionValue(type, value, true);
 		}
 		if (annotation.isNormalAnnotationExpr()) {
 			return annotation.asNormalAnnotationExpr()
@@ -159,17 +157,33 @@ public class App {
 				.filter(App::isPathAttribute)
 				.findFirst()
 				.map(MemberValuePair::getValue)
-				.map(App::extractExpressionValue)
+				.map(expr -> extractExpressionValue(type, expr, true))
 				.orElse(null);
 		}
 		return null;
 	}
 
-	private static String extractExpressionValue(Expression expression) {
+	private static String extractExpressionValue(TypeDeclaration<?> type, Expression expression, boolean tryToResolve) {
 		if (expression.isLiteralStringValueExpr()) {
 			return expression.asLiteralStringValueExpr().getValue();
 		}
-		return expression.toString();
+		if (!tryToResolve) {
+			return expression.toString();
+		}
+		String constantName = expression.toString();
+		Optional<FieldDeclaration> fieldDeclaration = type.getFieldByName(constantName);
+		if (fieldDeclaration.isPresent()) {
+			return fieldDeclaration.get()
+				.getVariables()
+				.stream()
+				.filter(var -> var.getName().getIdentifier().equals(constantName))
+				.filter(var -> var.getInitializer().isPresent())
+				.map(var -> var.getInitializer().get())
+				.map(expr -> extractExpressionValue(type, expr, false))
+				.findFirst()
+				.orElse(constantName);
+		}
+		return constantName;
 	}
 	
 	private static boolean isPathAttribute(MemberValuePair pair) {

@@ -318,8 +318,8 @@ class AppTests {
 		);
 	}
 
-	// TODO: try to resolve a constant from the same class
 	// TODO: try to resolve a constant from other class (Url.TEST_URL)
+	// TODO: add tests for other methods/annotations
 	@Test
 	void shouldDetectGetMappingAnnotationWithAConstant() {
 		// given
@@ -329,14 +329,24 @@ class AppTests {
 			"\n" +
 			"@Controller\n" +
 			"public class Test {\n" +
-			"    @GetMapping(TEST_URL)\n" +
-			"    public void test() {}\n" +
+			"    String TEST_URL1 = \"/get1\";\n" +
+			"    String TEST_URL2 = \"/get2\";\n" +
+			"    String TEST_URL3 = \"/get3\";\n" +
+			"\n"+
+			"    @GetMapping(TEST_URL1)\n" +
+			"    public void test1() {}\n" +
+			"\n"+
+			"    @GetMapping(value = TEST_URL2)\n" +
+			"    public void test2() {}\n" +
+			"\n"+
+			"    @GetMapping(path = TEST_URL3)\n" +
+			"    public void test3() {}\n" +
 			"}"
 		);
 		// when
 		List<String> endpoints = App.collectEndpoints(cu);
 		// then
-		assertThat(endpoints).containsExactly("GET TEST_URL");
+		assertThat(endpoints).containsExactly("GET /get1", "GET /get2", "GET /get3");
 	}
 
 }
