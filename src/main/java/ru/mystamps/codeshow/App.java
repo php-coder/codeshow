@@ -73,7 +73,7 @@ public class App {
 
 		NodeList<ImportDeclaration> imports = cu.getImports();
 		for (ImportDeclaration importDeclaration : imports) {
-			String importName = importDeclaration.getName().toString();
+			String importName = importDeclaration.getName().asString();
 			if (importDeclaration.isAsterisk()) {
 				if (wildcardImports.containsKey(importName)) {
 					wildcardImports.put(importName, Boolean.TRUE);
