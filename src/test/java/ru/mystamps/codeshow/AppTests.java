@@ -17,7 +17,69 @@ class AppTests {
 	// TODO: recognize annotations from an interface
 	// TODO: @RequestMapping(method) may have multiple values
 	// TODO: @RequestMapping(value|path) may have multiple values
+	// TODO: try to resolve a constant from other class (Url.TEST_URL)
+	// TODO: add tests for other methods/annotations for the case of resolving constants from the same class
 
+	@Test
+	void shouldHandleGetMapping() {
+		// given
+		CompilationUnit cu = JavaParser.parse("" +
+			"import org.springframework.web.bind.annotation.*;\n" +
+
+			"@RestController\n" +
+			"public class Test {\n" +
+
+			// @GetMapping()
+			"    @GetMapping(\"/get/1\")\n" +
+			"    public void get1() {}\n" +
+
+			"    String GET_2 = \"/get/2\";\n" +
+			"    @GetMapping(GET_2)\n" +
+			"    public void test2() {}\n" +
+
+			"    @GetMapping(GET_3)\n" +
+			"    public void test3() {}\n" +
+			
+			// @GetMapping(path = )
+			"    @GetMapping(path = \"/get/100\")\n" +
+			"    public void get100() {}\n" +
+
+			"    String GET_101 = \"/get/101\";\n" +
+			"    @GetMapping(path = GET_101)\n" +
+			"    public void get101() {}\n" +
+
+			"    @GetMapping(path = GET_102)\n" +
+			"    public void test102() {}\n" +
+			
+			// @GetMapping(value = )
+			"    @GetMapping(value = \"/get/200\")\n" +
+			"    public void get200() {}\n" +
+			
+			"    String GET_201 = \"/get/201\";\n" +
+			"    @GetMapping(value = GET_201)\n" +
+			"    public void test201() {}\n" +
+			
+			"    @GetMapping(value = GET_202)\n" +
+			"    public void test202() {}\n" +
+
+			"}"
+		);
+		// when
+		List<String> endpoints = App.collectEndpoints(cu);
+		// then
+		assertThat(endpoints).containsExactlyInAnyOrder(
+			"GET /get/1",
+			"GET /get/2",
+			"GET GET_3",
+			"GET /get/100",
+			"GET /get/101",
+			"GET GET_102",
+			"GET /get/200",
+			"GET /get/201",
+			"GET GET_202"
+			);
+	}
+	
 	@Test
 	void shouldDetectFullyImportedMappingsInsideController() {
 		// given
@@ -204,9 +266,6 @@ class AppTests {
 			"@RestController\n" +
 			"public class Test {\n" +
 			"\n" +
-			"    @GetMapping(path = \"/get\")\n" +
-			"    public void get() {}\n" +
-			"\n" +
 			"    @PutMapping(path = \"/put\")\n" +
 			"    public void put() {}\n" +
 			"\n" +
@@ -227,7 +286,6 @@ class AppTests {
 		List<String> endpoints = App.collectEndpoints(cu);
 		// then
 		assertThat(endpoints).containsExactlyInAnyOrder(
-			"GET /get",
 			"PUT /put",
 			"POST /post",
 			"PATCH /patch",
@@ -244,9 +302,6 @@ class AppTests {
 			"\n" +
 			"@RestController\n" +
 			"public class Test {\n" +
-			"\n" +
-			"    @GetMapping(path = GET_URL)\n" +
-			"    public void get() {}\n" +
 			"\n" +
 			"    @PutMapping(path = PUT_URL)\n" +
 			"    public void put() {}\n" +
@@ -268,7 +323,6 @@ class AppTests {
 		List<String> endpoints = App.collectEndpoints(cu);
 		// then
 		assertThat(endpoints).containsExactlyInAnyOrder(
-			"GET GET_URL",
 			"PUT PUT_URL",
 			"POST POST_URL",
 			"PATCH PATCH_URL",
@@ -285,9 +339,6 @@ class AppTests {
 			"\n" +
 			"@RestController\n" +
 			"public class Test {\n" +
-			"\n" +
-			"    @GetMapping(value = \"/get\")\n" +
-			"    public void get() {}\n" +
 			"\n" +
 			"    @PutMapping(value = \"/put\")\n" +
 			"    public void put() {}\n" +
@@ -309,7 +360,6 @@ class AppTests {
 		List<String> endpoints = App.collectEndpoints(cu);
 		// then
 		assertThat(endpoints).containsExactlyInAnyOrder(
-			"GET /get",
 			"PUT /put",
 			"POST /post",
 			"PATCH /patch",
@@ -318,35 +368,5 @@ class AppTests {
 		);
 	}
 
-	// TODO: try to resolve a constant from other class (Url.TEST_URL)
-	// TODO: add tests for other methods/annotations
-	@Test
-	void shouldDetectGetMappingAnnotationWithAConstant() {
-		// given
-		CompilationUnit cu = JavaParser.parse("" +
-			"import org.springframework.stereotype.Controller;\n" +
-			"import org.springframework.web.bind.annotation.GetMapping;\n" +
-			"\n" +
-			"@Controller\n" +
-			"public class Test {\n" +
-			"    String TEST_URL1 = \"/get1\";\n" +
-			"    String TEST_URL2 = \"/get2\";\n" +
-			"    String TEST_URL3 = \"/get3\";\n" +
-			"\n"+
-			"    @GetMapping(TEST_URL1)\n" +
-			"    public void test1() {}\n" +
-			"\n"+
-			"    @GetMapping(value = TEST_URL2)\n" +
-			"    public void test2() {}\n" +
-			"\n"+
-			"    @GetMapping(path = TEST_URL3)\n" +
-			"    public void test3() {}\n" +
-			"}"
-		);
-		// when
-		List<String> endpoints = App.collectEndpoints(cu);
-		// then
-		assertThat(endpoints).containsExactly("GET /get1", "GET /get2", "GET /get3");
-	}
 
 }
