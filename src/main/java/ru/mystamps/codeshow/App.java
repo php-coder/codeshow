@@ -116,8 +116,7 @@ public class App {
 				addIfNotNull(result, inspectMethodForAnnotation("PATCH", PATCH_MAPPING_NAME, PATCH_MAPPING_FULL_NAME, type, method, classImports, wildcardImports));
 				addIfNotNull(result, inspectMethodForAnnotation("DELETE", DELETE_MAPPING_NAME, DELETE_MAPPING_FULL_NAME, type, method, classImports, wildcardImports));
 
-				// TODO: what method it should have? GET, POST, HEAD, OPTIONS, PUT, PATCH, DELETE, TRACE?
-				addIfNotNull(result, inspectMethodForAnnotation("ANY?", REQUEST_MAPPING_NAME, REQUEST_MAPPING_FULL_NAME, type, method, classImports, wildcardImports));
+				addIfNotNull(result, inspectMethodForAnnotation("GET", REQUEST_MAPPING_NAME, REQUEST_MAPPING_FULL_NAME, type, method, classImports, wildcardImports));
 			}
 		}
 

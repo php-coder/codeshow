@@ -61,7 +61,7 @@ class AppTests {
 			"POST /post",
 			"PATCH /patch",
 			"DELETE /delete",
-			"ANY? /request"
+			"GET /request"
 		);
 	}
 
@@ -103,7 +103,7 @@ class AppTests {
 			"POST /post",
 			"PATCH /patch",
 			"DELETE /delete",
-			"ANY? /request"
+			"GET /request"
 		);
 	}
 
@@ -150,7 +150,7 @@ class AppTests {
 			"POST /post",
 			"PATCH /patch",
 			"DELETE /delete",
-			"ANY? /request"
+			"GET /request"
 		);
 	}
 
@@ -191,7 +191,7 @@ class AppTests {
 			"POST /post",
 			"PATCH /patch",
 			"DELETE /delete",
-			"ANY? /request"
+			"GET /request"
 		);
 	}
 
@@ -232,7 +232,7 @@ class AppTests {
 			"POST /post",
 			"PATCH /patch",
 			"DELETE /delete",
-			"ANY? /request"
+			"GET /request"
 		);
 	}
 
@@ -273,7 +273,7 @@ class AppTests {
 			"POST POST_URL",
 			"PATCH PATCH_URL",
 			"DELETE DELETE_URL",
-			"ANY? REQUEST_URL"
+			"GET REQUEST_URL"
 		);
 	}
 
@@ -314,7 +314,7 @@ class AppTests {
 			"POST /post",
 			"PATCH /patch",
 			"DELETE /delete",
-			"ANY? /request"
+			"GET /request"
 		);
 	}
 
